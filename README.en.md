@@ -4,6 +4,8 @@
 
 Ubuntu Fingerprint Auth gives interactive `sudo-rs` and GNOME PolicyKit one **Password or fingerprint** prompt on Ubuntu 26.04. You can type your password immediately while `fprintd` listens for your finger. Prompt waiting has no time limit. After three unsuccessful scans, password entry is still available.
 
+For Goodix `27c6:5301` readers, see the separate [Ubuntu 26.04 driver package](https://github.com/DefGh/libfprint-goodix-5301).
+
 ## Install and verify
 
 Use Ubuntu 26.04 on `amd64` or `arm64` and a reader that already works with `fprintd`. Enroll a finger with `fprintd-enroll` and verify it with `fprintd-verify`. Pick the build for the architecture printed by `dpkg --print-architecture`.
