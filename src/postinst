@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+if [ "$1" = configure ]; then
+  /usr/bin/python3 /usr/lib/fingerprint-auth-choice/configure.py install
+fi

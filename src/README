@@ -1,0 +1,29 @@
+Concurrent fingerprint and password authentication for Ubuntu 26.04
+
+Type the password at the prompt or touch the reader. The module supports
+interactive sudo-rs on the controlling terminal and the socket-activated
+PolicyKit helper used by GNOME. Explicit stdin and askpass modes use sudo's
+native password prompt.
+
+Each user enrolls their own fingerprint in Settings or with fprintd-enroll.
+Any reader usable by fprintd can provide biometric authentication. The
+package includes no hardware driver or user configuration.
+
+Password verification uses the system common-auth stack. If the standard
+pam-auth-update fingerprint profile is already enabled, the password
+verifier skips that profile in its own PAM transaction. The original file
+stays in use by other services. Both authentication prompts have no time
+limit. Fingerprint verification allows three unsuccessful scans.
+Custom mandatory common-auth rules continue through the system PAM stack.
+
+Run sudo apt install ./PACKAGE.deb to install. Check the terminal with
+sudo -k && sudo -v and the GNOME dialog with pkexec /usr/bin/true.
+Run sudo apt remove fingerprint-auth-choice to restore the original PAM files.
+
+Native build on amd64 or arm64 with GCC, dpkg-dev and libpam0g-dev
+  sh build.sh .
+
+Cross-build from amd64 with the Ubuntu aarch64 cross compiler and arm64
+libpam development libraries
+  TARGET_ARCH=arm64 CC=aarch64-linux-gnu-gcc STRIP=aarch64-linux-gnu-strip \
+    sh build.sh . /path/to/libpam/include
