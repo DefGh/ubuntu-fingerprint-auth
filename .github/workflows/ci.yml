@@ -1,0 +1,56 @@
+name: Build and test
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Ubuntu 26.04 (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    container: ubuntu:26.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            ca-certificates git gcc binutils dpkg-dev libpam0g-dev libpam-modules python3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Test PAM and package configuration
+        run: |
+          sh test/run.sh
+          python3 -B test/test_configure.py
+      - name: Build and check package
+        env:
+          EXPECTED_ARCH: ${{ matrix.arch }}
+        run: |
+          sh src/build.sh dist
+          cd dist
+          set -- ./*.deb
+          test "$#" = 1
+          test "$(dpkg-deb -f "$1" Architecture)" = "$EXPECTED_ARCH"
+          sha256sum "$1" > SHA256SUMS
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: ubuntu-26.04-${{ matrix.arch }}
+          path: |
+            dist/*.deb
+            dist/SHA256SUMS
+          if-no-files-found: error

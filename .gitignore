@@ -1,0 +1,8 @@
+/dist/
+/build/
+*.deb
+*.o
+*.so
+__pycache__/
+*.py[cod]
+.venv/
